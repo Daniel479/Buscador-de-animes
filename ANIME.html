@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <title>Busca de Imagens de Anime</title>
+    <!-- Adiciona o link para o CSS do Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Inclui o link para a fonte do Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Handjet:wght@100;400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Estilo para o corpo da página */
+        body {
+            background-color: black;
+            color: white; /* Cor do texto para contraste */
+            font-family: 'Handjet', sans-serif; /* Aplica a fonte personalizada */
+        }
+        /* Estilo para o div com id 'backgroundcolor' */
+        #backgroundcolor {
+            background-color: rgb(0, 0, 0); /* Define a cor de fundo */
+            color: rgb(125, 66, 198); /* Define a cor do texto como uma cor personalizada */
+            padding: 20px; /* Adiciona um pouco de espaçamento interno */
+            text-align: center; /* Centraliza o texto dentro do div */
+            border-radius: 8px; /* Adiciona bordas arredondadas ao div */
+            margin: 20px auto; /* Centraliza o div na página */
+            max-width: 800px; /* Define a largura máxima do div */
+        }
+        /* Estilo para a imagem */
+        #img_anime {
+            max-width: 35%;
+            height: auto;
+            margin-top: 70px;
+        }
+        /* Estilo para a mensagem de erro */
+        #error_message {
+            margin-top: 20px;
+        }
+        /* Centraliza a imagem horizontalmente */
+        .centered-image {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="backgroundcolor">
+        <h1 class="mb-3">Imagens de Anime</h1>
+        <p class="lead mb-3">Digite o nome do anime e clique no botão para buscar uma imagem relacionada.</p>
+
+        <!-- Campo de entrada para o nome do anime -->
+        <div class="form-group">
+            <input type="text" id="anime_name" class="form-control" placeholder="Nome do anime">
+        </div>
+        <!-- Botão para acionar a busca de imagem -->
+        <button onclick="buscarImagemAnime()" class="btn btn-primary">Buscar Imagem</button>
+        <br/>
+
+        <!-- Imagem que será exibida após a busca -->
+        <img id="img_anime" class="centered-image" src="" alt="Aguardando a imagem ser carregada" style="display:none;"/>
+        <!-- Mensagem de erro que será exibida se algo der errado -->
+        <p id="error_message" class="text-danger"></p>
+    </div>
+
+    <!-- Adiciona os scripts do Bootstrap e jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script type="text/javascript">
+        // Função que faz a busca da imagem do anime
+        function buscarImagemAnime() {
+            // Obtém o nome do anime do campo de entrada
+            var animeName = document.getElementById("anime_name").value;
+            // URL da API do Jikan para buscar informações sobre o anime
+            var url = `https://api.jikan.moe/v4/anime?q=${encodeURIComponent(animeName)}&limit=1`;
+
+            // Faz a requisição para a API
+            fetch(url, { 
+                method: 'get' 
+            })
+            .then(function(response) { 
+                // Verifica se a resposta é bem-sucedida
+                if (!response.ok) {
+                    throw new Error('Erro na resposta da API');
+                }
+                return response.json();
+            })
+            .then(function(data) {
+                // Verifica se a API retornou algum resultado
+                if (data.data.length > 0) {
+                    // Obtém a URL da imagem do anime
+                    var animeImage = data.data[0].images.jpg.large_image_url;
+                    // Atualiza a fonte da imagem e exibe a imagem
+                    var imgAnime = document.getElementById("img_anime");
+                    imgAnime.src = animeImage;
+                    imgAnime.style.display = 'block'; // Exibe a imagem
+                    // Limpa qualquer mensagem de erro anterior
+                    document.getElementById("error_message").textContent = ''; 
+                } else {
+                    // Exibe uma mensagem de erro se nenhum anime for encontrado
+                    document.getElementById("error_message").textContent = 'Nenhuma imagem encontrada.';
+                    document.getElementById("img_anime").style.display = 'none'; // Oculta a imagem
+                }
+            })
+            .catch(function(err) { 
+                // Exibe uma mensagem de erro caso ocorra um problema com a requisição
+                document.getElementById("error_message").textContent = 'O seguinte erro ocorreu durante a requisição: ' + err;
+                document.getElementById("img_anime").style.display = 'none'; // Oculta a imagem em caso de erro
+            });
+        }
+    </script>
+</body>
+</html>
